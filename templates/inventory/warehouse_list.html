@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Warehouses" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Warehouses" %}</h2>
+<table class="table">
+    <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Plant" %}</th></tr></thead>
+    <tbody>
+    {% for w in warehouses %}
+        <tr><td><a href="/inventory/warehouses/{{ w.id }}/">{{ w.name }}</a></td><td>{{ w.plant }}</td></tr>
+    {% empty %}<tr><td colspan="2">{% trans "No warehouses" %}</td></tr>{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

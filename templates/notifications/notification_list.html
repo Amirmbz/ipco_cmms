@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Notifications" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Notifications" %}</h2>
+<ul>
+    {% for n in notifications %}
+        <li{% if not n.read %} class="has-background-warning-light"{% endif %}>
+            {{ n.created_at }} - {{ n.message }}
+            {% if n.work_order %}<a href="/work-orders/{{ n.work_order.id }}/">{% trans "View Work Order" %}</a>{% endif %}
+        </li>
+    {% empty %}<li>{% trans "No notifications" %}</li>{% endfor %}
+</ul>
+{% endblock %}

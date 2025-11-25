@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "PM Templates" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "PM Templates" %}</h2>
+<table class="table">
+    <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Plant" %}</th><th>{% trans "Frequency" %}</th></tr></thead>
+    <tbody>
+    {% for t in templates %}
+        <tr><td>{{ t.name }}</td><td>{{ t.plant }}</td><td>{{ t.get_frequency_type_display }}</td></tr>
+    {% empty %}<tr><td colspan="3">{% trans "No templates" %}</td></tr>{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

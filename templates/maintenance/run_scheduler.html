@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Run Scheduler" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "PM Scheduler" %}</h2>
+<form method="post">
+    {% csrf_token %}
+    <button class="button is-primary" type="submit">{% trans "Run" %}</button>
+</form>
+{% if created %}
+    <h3 class="title is-6">{% trans "Created Work Orders" %}</h3>
+    <ul>
+        {% for wo in created %}<li>{{ wo.code }}</li>{% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Work Orders" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Work Orders" %}</h2>
+<form class="box" method="get">
+    <div class="columns">
+        <div class="column">
+            <div class="select is-fullwidth">
+                <select name="plant">
+                    <option value="">{% trans "Plant" %}</option>
+                    {% for p in plants %}
+                        <option value="{{ p.id }}" {% if request.GET.plant == p.id|stringformat:'s' %}selected{% endif %}>{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="column"><input class="input" type="text" name="status" placeholder="{% trans "Status" %}" value="{{ request.GET.status }}"></div>
+        <div class="column"><input class="input" type="text" name="type" placeholder="{% trans "Type" %}" value="{{ request.GET.type }}"></div>
+        <div class="column">
+            <div class="select is-fullwidth">
+                <select name="department">
+                    <option value="">{% trans "Department" %}</option>
+                    {% for d in departments %}
+                        <option value="{{ d.id }}" {% if request.GET.department == d.id|stringformat:'s' %}selected{% endif %}>{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="column"><button class="button is-primary" type="submit">{% trans "Filter" %}</button></div>
+    </div>
+</form>
+<table class="table is-fullwidth">
+    <thead><tr><th>{% trans "Code" %}</th><th>{% trans "Title" %}</th><th>{% trans "Plant" %}</th><th>{% trans "Status" %}</th><th>{% trans "Type" %}</th><th>{% trans "Priority" %}</th></tr></thead>
+    <tbody>
+    {% for wo in work_orders %}
+        <tr>
+            <td><a href="/work-orders/{{ wo.id }}/">{{ wo.code }}</a></td>
+            <td>{{ wo.title }}</td>
+            <td>{{ wo.plant }}</td>
+            <td>{{ wo.get_status_display }}</td>
+            <td>{{ wo.get_type_display }}</td>
+            <td>{{ wo.get_priority_display }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6">{% trans "No work orders" %}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+<a class="button is-link" href="/work-orders/create/">{% trans "Create" %}</a>
+{% endblock %}

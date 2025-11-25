@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Review Work Order" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Review Work Order" %}: {{ work_order.code }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="button is-primary" type="submit">{% trans "Save" %}</button>
+</form>
+{% endblock %}

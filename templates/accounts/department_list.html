@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Departments" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Departments" %}</h2>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "Code" %}</th><th>{% trans "Name" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for d in departments %}
+        <tr><td>{{ d.code }}</td><td>{{ d.name }}</td></tr>
+        {% empty %}
+        <tr><td colspan="2">{% trans "No departments" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

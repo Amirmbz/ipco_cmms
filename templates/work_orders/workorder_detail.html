@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load dates %}
+{% block title %}{{ work_order.code }}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{{ work_order.code }} - {{ work_order.title }}</h2>
+<p><strong>{% trans "Plant" %}:</strong> {{ work_order.plant }}</p>
+<p><strong>{% trans "Status" %}:</strong> {{ work_order.get_status_display }}</p>
+<p><strong>{% trans "Type" %}:</strong> {{ work_order.get_type_display }}</p>
+<p><strong>{% trans "Priority" %}:</strong> {{ work_order.get_priority_display }}</p>
+<p><strong>{% trans "Department" %}:</strong> {{ work_order.department }}</p>
+<p><strong>{% trans "Due" %}:</strong> {{ work_order.due_date|display_date }}</p>
+
+<div class="box">
+    <h3 class="title is-5">{% trans "Supervisor Review" %}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="review">
+        {{ review_form.as_p }}
+        <button class="button is-primary" type="submit">{% trans "Save" %}</button>
+    </form>
+</div>
+<div class="box">
+    <h3 class="title is-5">{% trans "Technician Actions" %}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="action">
+        {{ action_form.as_p }}
+        <button class="button is-link" type="submit">{% trans "Add Action" %}</button>
+    </form>
+    <ul>
+        {% for a in actions %}<li>{{ a.created_at }} - {{ a.technician }}: {{ a.description }} ({{ a.labor_hours }})</li>{% empty %}<li>{% trans "No actions" %}</li>{% endfor %}
+    </ul>
+</div>
+<div class="box">
+    <h3 class="title is-5">{% trans "Failures" %}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="failure">
+        {{ failure_form.as_p }}
+        <button class="button is-warning" type="submit">{% trans "Add Failure" %}</button>
+    </form>
+    <ul>
+        {% for f in failures %}<li>{{ f.get_category_display }} - {{ f.failure_mode }} ({{ f.root_cause }})</li>{% empty %}<li>{% trans "No failures" %}</li>{% endfor %}
+    </ul>
+</div>
+<div class="box">
+    <h3 class="title is-5">{% trans "Parts" %}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="part">
+        {{ part_form.as_p }}
+        <button class="button is-info" type="submit">{% trans "Log Part" %}</button>
+    </form>
+    <ul>
+        {% for p in parts %}<li>{{ p.part }} - {{ p.quantity }} {{ p.get_condition_display }}</li>{% empty %}<li>{% trans "No parts" %}</li>{% endfor %}
+    </ul>
+</div>
+<div class="box">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="complete">
+        <button class="button is-success" type="submit">{% trans "Complete Work Order" %}</button>
+    </form>
+</div>
+{% endblock %}

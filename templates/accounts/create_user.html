@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Create User" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Create User" %}</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="columns">
+        <div class="column">{{ user_form.as_p }}</div>
+        <div class="column">{{ profile_form.as_p }}</div>
+    </div>
+    <button class="button is-primary" type="submit">{% trans "Save" %}</button>
+</form>
+{% endblock %}

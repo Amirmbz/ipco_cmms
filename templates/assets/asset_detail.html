@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ asset.name }}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{{ asset.name }} ({{ asset.code }})</h2>
+<div class="tabs is-boxed">
+  <ul>
+    <li class="is-active"><a>{% trans "Details" %}</a></li>
+    <li><a>{% trans "Attachments" %}</a></li>
+    <li><a>{% trans "Linked Parts" %}</a></li>
+    <li><a>{% trans "Work Orders" %}</a></li>
+    <li><a>{% trans "History" %}</a></li>
+  </ul>
+</div>
+<div class="box">
+    <p><strong>{% trans "Plant" %}:</strong> {{ asset.plant }}</p>
+    <p><strong>{% trans "Location" %}:</strong> {{ asset.location }}</p>
+    <p><strong>{% trans "Category" %}:</strong> {{ asset.category }}</p>
+    <p><strong>{% trans "Status" %}:</strong> {{ asset.get_status_display }}</p>
+    <p><strong>{% trans "PM" %}:</strong> {{ asset.get_pm_schedule_type_display }}</p>
+    <p><strong>{% trans "Notes" %}:</strong> {{ asset.notes }}</p>
+</div>
+<div class="box">
+    <h3 class="title is-5">{% trans "Attachments" %}</h3>
+    <ul>
+        {% for att in attachments %}
+            <li><a href="{{ att.file.url }}">{{ att.description|default:att.file.name }}</a></li>
+        {% empty %}
+            <li>{% trans "No attachments" %}</li>
+        {% endfor %}
+    </ul>
+</div>
+<div class="box">
+    <h3 class="title is-5">{% trans "Linked Parts" %}</h3>
+    <ul>
+        {% for sp in spare_parts %}
+            <li>{{ sp.part }} - {{ sp.notes }}</li>
+        {% empty %}
+            <li>{% trans "No parts linked" %}</li>
+        {% endfor %}
+    </ul>
+</div>
+<div class="box">
+    <h3 class="title is-5">{% trans "Work Orders" %}</h3>
+    <p>{% trans "Stub list of related work orders" %}</p>
+</div>
+<div class="box">
+    <h3 class="title is-5">{% trans "History" %}</h3>
+    <p>{% trans "History placeholder" %}</p>
+</div>
+{% endblock %}

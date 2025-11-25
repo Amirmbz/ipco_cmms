@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Checklist Templates" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Checklist Templates" %}</h2>
+<table class="table">
+    <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Plant" %}</th></tr></thead>
+    <tbody>
+        {% for t in templates %}
+        <tr><td>{{ t.name }}</td><td>{{ t.plant }}</td></tr>
+        {% empty %}<tr><td colspan="2">{% trans "No templates" %}</td></tr>{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

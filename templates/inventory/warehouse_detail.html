@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ warehouse.name }}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{{ warehouse.name }}</h2>
+<table class="table">
+    <thead><tr><th>{% trans "Part" %}</th><th>{% trans "Condition" %}</th><th>{% trans "Quantity" %}</th></tr></thead>
+    <tbody>
+    {% for s in stock %}
+        <tr><td>{{ s.part }}</td><td>{{ s.get_condition_display }}</td><td>{{ s.quantity }}</td></tr>
+    {% empty %}<tr><td colspan="3">{% trans "No stock" %}</td></tr>{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

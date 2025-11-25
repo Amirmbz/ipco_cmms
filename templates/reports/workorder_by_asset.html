@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Workorders by Asset" %}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{% trans "Workorders by Asset" %}</h2>
+<form method="get" action="/api/reports/workorder-by-asset/">
+    <div class="field"><label class="label">Asset ID</label><input class="input" type="text" name="asset"></div>
+    <div class="field"><label class="label">Start</label><input class="input" type="date" name="start"></div>
+    <div class="field"><label class="label">End</label><input class="input" type="date" name="end"></div>
+    <button class="button is-primary" type="submit">{% trans "Run" %}</button>
+    <a class="button" href="/api/reports/workorder-by-asset/?export=csv">{% trans "Export to Excel" %}</a>
+</form>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ plant.name }}{% endblock %}
+{% block content %}
+<h2 class="subtitle">{{ plant.name }}</h2>
+<p><strong>{% trans "Code" %}:</strong> {{ plant.code }}</p>
+<p><strong>{% trans "Address" %}:</strong> {{ plant.address }}</p>
+{% endblock %}
