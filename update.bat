@@ -3,9 +3,9 @@ setlocal enabledelayedexpansion
 
 REM ===== CONFIG =====
 REM Full path to your repo (folder that contains manage.py)
-set REPO_DIR=C:\Users\amirm\OneDrive\Documents\VS\ipco\cmms\ipco_cmms
+set REPO_DIR=C:\ipco\ipco_cmms
 REM Your main branch name (change to master if needed)
-set BRANCH=main
+set BRANCH=master
 
 echo ============================================
 echo      IPCO CMMS - Update and Run
