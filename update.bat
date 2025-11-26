@@ -15,9 +15,9 @@ echo.
 REM Go to repo directory
 cd /d "%REPO_DIR%" || (
   echo [ERROR] Repository directory not found:
-  echo         %REPO_DIR%
+  echo         %REPO_DIR%./
   pause
-  exit /b 1
+  
 )
 
 REM 1) Fetch latest changes
@@ -26,7 +26,7 @@ git fetch origin %BRANCH%
 if errorlevel 1 (
   echo [ERROR] git fetch failed. Check network or git remote.
   pause
-  exit /b 1
+  
 )
 
 REM 2) Compare local and remote heads (ahead/behind)
@@ -46,7 +46,7 @@ if "%BEHIND%" NEQ "0" if "%AHEAD%"=="0" (
   if errorlevel 1 (
     echo [ERROR] git pull failed (maybe conflicts?). Please contact your developer.
     pause
-    exit /b 1
+    
   )
   goto after_sync
 )
@@ -92,7 +92,7 @@ if exist requirements.txt (
   if errorlevel 1 (
     echo [ERROR] pip install failed. Check Python/virtualenv.
     pause
-    exit /b 1
+    
   )
 ) else (
   echo     requirements.txt not found, skipping dependency install.
@@ -104,7 +104,7 @@ echo [4] Running database migrations...
 if errorlevel 1 (
   echo [ERROR] migrate failed. Check database connectivity or migrations.
   pause
-  exit /b 1
+  
 )
 
 echo.
