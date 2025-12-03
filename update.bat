@@ -1,121 +1,133 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM ===== CONFIG =====
-REM Full path to your repo (folder that contains manage.py)
-set REPO_DIR=C:\ipco\ipco_cmms
-REM Your main branch name (change to master if needed)
-set BRANCH=master
+REM ========== CONFIG ==========
+set REPO_DIR=C:\Your\Path\To\Project
+set BRANCH=main
+set PYTHON=.venv\Scripts\python
+set PIP=.venv\Scripts\pip
 
+REM ========= Helper to show original error ========
+:ShowError
+echo.
+echo [ERROR] %1
+echo ----------------------------------------------
+echo ORIGINAL SYSTEM ERROR:
+echo %ERROR_OUTPUT%
+echo ----------------------------------------------
+goto END
+
+
+REM ========== START ==========
 echo ============================================
-echo      IPCO CMMS - Update and Run
+echo       IPCO CMMS - Update and Run
 echo ============================================
 echo.
 
-REM Go to repo directory
-cd /d "%REPO_DIR%" || (
-  echo [ERROR] Repository directory not found:
-  echo         %REPO_DIR%./
-  pause
-  
-)
-
-REM 1) Fetch latest changes
-echo [1] Fetching latest changes from origin/%BRANCH% ...
-git fetch origin %BRANCH%
+REM 0) Go to repo
+echo [0] Changing directory to: %REPO_DIR%
+cd /d "%REPO_DIR%" 2>temp_error.txt
 if errorlevel 1 (
-  echo [ERROR] git fetch failed. Check network or git remote.
-  pause
-  
+    set /p ERROR_OUTPUT=<temp_error.txt
+    call :ShowError "Could not change to REPO_DIR. Check the path."
 )
 
-REM 2) Compare local and remote heads (ahead/behind)
-for /f "tokens=1 2" %%i in ('git rev-list --left-right --count origin/%BRANCH%...HEAD') do (
+REM 1) Fetch
+echo.
+echo [1] Fetching origin/%BRANCH% ...
+set ERROR_OUTPUT=
+for /f "delims=" %%i in ('git fetch origin %BRANCH% 2^>temp_error.txt') do set ERROR_OUTPUT=
+if errorlevel 1 (
+    set /p ERROR_OUTPUT=<temp_error.txt
+    call :ShowError "git fetch failed"
+)
+
+REM 2) Determine ahead/behind
+for /f "tokens=1 2" %%i in ('git rev-list --left-right --count origin/%BRANCH%...HEAD 2^>temp_error.txt') do (
   set BEHIND=%%i
   set AHEAD=%%j
 )
-
-echo     Local commits AHEAD of origin/%BRANCH%: %AHEAD%
-echo     Local commits BEHIND origin/%BRANCH%: %BEHIND%
-echo.
-
-REM CASE 1: Local is behind remote (pull)
-if "%BEHIND%" NEQ "0" if "%AHEAD%"=="0" (
-  echo [2] Local repo is BEHIND remote. Pulling latest changes...
-  git pull origin %BRANCH%
-  if errorlevel 1 (
-    echo [ERROR] git pull failed (maybe conflicts?). Please contact your developer.
-    pause
-    
-  )
-  goto after_sync
-)
-
-REM CASE 2: Local is ahead remote (push)
-if "%AHEAD%" NEQ "0" if "%BEHIND%"=="0" (
-  echo [2] Local repo is AHEAD of remote. Committing and pushing client updates...
-  git add -A
-  git commit -m "client updates" >nul 2>&1
-  if errorlevel 1 (
-    echo     No new local changes to commit (this is OK).
-  ) else (
-    echo     Changes committed as "client updates".
-  )
-
-  git push origin %BRANCH%
-  if errorlevel 1 (
-    echo [ERROR] git push failed. Check network or remote permissions.
-    pause
-    exit /b 1
-  )
-  goto after_sync
-)
-
-REM CASE 3: Up to date
-if "%AHEAD%"=="0" if "%BEHIND%"=="0" (
-  echo [2] Local and remote are already in sync. No code changes.
-  goto after_sync
-)
-
-REM CASE 4: Diverged (both ahead and behind)
-echo [2] WARNING: Local and remote have diverged (both ahead and behind).
-echo     This needs manual resolution on the dev machine.
-pause
-exit /b 1
-
-
-:after_sync
-echo.
-echo [3] Checking and installing Python requirements (if requirements.txt exists)...
-if exist requirements.txt (
-  .\.venv\Scripts\pip install -r requirements.txt
-  if errorlevel 1 (
-    echo [ERROR] pip install failed. Check Python/virtualenv.
-    pause
-    
-  )
-) else (
-  echo     requirements.txt not found, skipping dependency install.
-)
-
-echo.
-echo [4] Running database migrations...
-.\.venv\Scripts\python manage.py migrate
 if errorlevel 1 (
-  echo [ERROR] migrate failed. Check database connectivity or migrations.
-  pause
-  
+    set /p ERROR_OUTPUT=<temp_error.txt
+    call :ShowError "Could not compare commits (rev-list failed)"
 )
 
 echo.
-echo [5] Starting Django development server...
-echo     The server will stop when you close this window.
-echo     Open http://127.0.0.1:8000/ in your browser.
-echo.
+echo [2] Commits behind: %BEHIND%
+echo [2] Commits ahead : %AHEAD%
 
-.\.venv\Scripts\python manage.py runserver 0.0.0.0:8000
+REM CASE: pull
+if "%BEHIND%" NEQ "0" if "%AHEAD%"=="0" (
+    echo.
+    echo [3] Pulling latest changes...
+    git pull origin %BRANCH% 2>temp_error.txt
+    if errorlevel 1 (
+        set /p ERROR_OUTPUT=<temp_error.txt
+        call :ShowError "git pull failed"
+    )
+)
+
+REM CASE: push
+if "%AHEAD%" NEQ "0" if "%BEHIND%"=="0" (
+    echo.
+    echo [3] Pushing client updates...
+    git add -A
+
+    git commit -m "client updates" 2>temp_error.txt
+    REM commit might fail if no changes → ignore this one
+
+    git push origin %BRANCH% 2>temp_error.txt
+    if errorlevel 1 (
+        set /p ERROR_OUTPUT=<temp_error.txt
+        call :ShowError "git push failed"
+    )
+)
+
+REM CASE: diverged
+if "%AHEAD%" NEQ "0" if "%BEHIND%" NEQ "0" (
+    echo.
+    echo [ERROR] Both ahead and behind (diverged). Manual merge required.
+    goto END
+)
 
 echo.
-echo Django server stopped. Press any key to close this window.
+echo [3] Repo synchronized.
+
+REM 4) Install requirements
+echo.
+echo [4] Installing requirements...
+%PIP% install -r requirements.txt 2>temp_error.txt
+if errorlevel 1 (
+    set /p ERROR_OUTPUT=<temp_error.txt
+    call :ShowError "pip install failed"
+)
+
+REM 5) Migrations
+echo.
+echo [5] Running migrations...
+%PYTHON% manage.py migrate 2>temp_error.txt
+if errorlevel 1 (
+    set /p ERROR_OUTPUT=<temp_error.txt
+    call :ShowError "migrate failed"
+)
+
+REM 6) Run server
+echo.
+echo [6] Starting Django server...
+echo.
+%PYTHON% manage.py runserver 0.0.0.0:8000 2>temp_error.txt
+if errorlevel 1 (
+    set /p ERROR_OUTPUT=<temp_error.txt
+    call :ShowError "runserver failed"
+)
+
+goto END
+
+REM ========== END ==========
+:END
+echo.
+echo ============================================
+echo Script finished. Press any key to exit.
+echo ============================================
 pause
 endlocal
